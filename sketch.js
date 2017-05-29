@@ -45,24 +45,31 @@ var setup = function(){
   rightBoundary = new Boundary(width - 20,height / 2, 10, height, Math.PI);
   boundaries.push(rightBoundary);
 
-  // create two particles
-  p1 = new Particle(100, 30, 10);
-  p2 = new Particle(150, 60, 10);
-  particles.push(p1);
-  particles.push(p2);
+  // create a few particles
+
+  prevParticle = null;
+  for (x = 20; x < 400; x += 30){
+    p = new Particle(x, 30, 10);
+    particles.push(p);
 
 
+    // insert a constraint to the previous particle, if it exists
+    if(prevParticle){
+      console.log(prevParticle)
+      var options = {
+        bodyA:  prevParticle.body,
+        bodyB:  p.body,
+        length: 60,
+        stiffness: 1
+      }
+      var constraint = Constraint.create(options);
+      World.add(world, constraint);
+    }
 
+    // set the previous particle to be this one
+    prevParticle = p;
 
-  var options = {
-    bodyA:  p1.body,
-    bodyB:  p2.body,
-    length: 150,
-    stiffness: .4
   }
-
-  var constraint = Constraint.create(options)
-  World.add(world, constraint);
 
   Engine.run(engine);
 
@@ -88,11 +95,25 @@ var draw = function() {
     b.show();
   }
 
+  prevParticle = null;
   for (p of particles){
     p.show();
+
+    if(prevParticle){
+      line(p.body.position.x, p.body.position.y,
+          prevParticle.body.position.x, prevParticle.body.position.y
+          )
+        prevParticle = p;
+    }
+
   }
 
   for (b of boundaries){
     b.show();
   }
+
+
+
+
+
 }
